@@ -10,6 +10,8 @@ use PDL::Core::Dev;
 # a Debian package won't have to include Alien::FFTW3.
 my $cflags;
 my $libs;
+my $version = parseVersion( 'FFTW3.pd');
+
 if( eval "require Alien::FFTW3" ) {
 
     ## Ensure at least version 3.3; die if we can't get it.
@@ -23,6 +25,14 @@ if( eval "require Alien::FFTW3" ) {
     $cflags = Alien::FFTW3->cflags;
     $libs   = Alien::FFTW3->libs;
 } else {
+    if( $version =~ /_/ )
+    {
+      die
+        "Alien::FFTW3 not found, but it is required for dev snapshots, such as this.\n" .
+        "Please use Alien::FFTW3 or use a release of this module.\n" .
+        "Or remove this check from the source.";
+    }
+
     printf "Alien::FFTW3 not found.  Using pkg-config instead...\n";
 
     require IPC::Run;
@@ -96,7 +106,7 @@ sub MY::postamble
 
 install ::
 	@echo "Updating PDL documentation database...";
-	@$(PERL) -e 'exit if $$ENV{DESTDIR}; use PDL::Doc; eval { PDL::Doc::add_module(q{PDL::FFTW3}); }; ';
+	@$(PERL) -e "exit if $$ENV{DESTDIR}; use PDL::Doc; eval { PDL::Doc::add_module(q{PDL::FFTW3}); }; ";
 FOO
 }
 
